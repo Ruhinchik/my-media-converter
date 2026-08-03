@@ -3,15 +3,33 @@ import yt_dlp
 import os
 import tempfile
 
-# Настройка страницы
-st.set_page_config(page_title="Media Mega Комбайн v3.3", page_icon="🚀", layout="centered")
+# 🎨 Полная настройка темы и страницы
+st.set_page_config(
+    page_title="Media Mega Комбайн v3.4", 
+    page_icon="🚀", 
+    layout="centered"
+)
 
-# ================= ТВОЯ КРАСИВАЯ КАРТИНКА ЗВУКОВОЙ ВОЛНЫ =================
-# Прямая ссылка на выбранное тобой изображение
+# Меняем фон сайта через безопасный CSS, который точно сработает в 2026 году
+st.markdown("""
+    <style>
+    /* Меняем фон всего приложения */
+    .stApp {
+        background-color: #0d0b18 !important;
+    }
+    /* Делаем текст заголовков красивым неоновым */
+    h1 {
+        color: #b388ff !important;
+        text-shadow: 0 0 10px rgba(179, 136, 255, 0.4);
+    }
+    </style>
+""", unsafe_allowed_html=True)
+
+# Твой красивый баннер вверху
 banner_url = "https://squarespace-cdn.com"
 st.image(banner_url, use_container_width=True)
 
-st.title("🚀 Media Mega Комбайн v3.3")
+st.title("🚀 Media Mega Комбайн v3.4")
 st.write("Скачивайте, слушайте и смотрите медиа со всех соцсетей в один клик!")
 
 # Поле ввода ссылки
@@ -20,54 +38,55 @@ link = st.text_input("🔗 Вставьте вашу ссылку сюда (Inst
 if link:
     st.markdown("---")
     
-    # ================= 5. УМНЫЙ ОПРЕДЕЛИТЕЛЬ ССЫЛОК + ИКОНКИ =================
+    # Умный определитель
     link_lower = link.lower()
     if "instagram.com" in link_lower:
-        st.info("📸 **Обнаружена ссылка из Instagram!** Готовлюсь извлечь Reels/Видео.")
+        st.info("📸 **Обнаружена ссылка из Instagram!**")
     elif "youtube.com" in link_lower or "youtu.be" in link_lower:
-        st.success("📺 **Обнаружена ссылка из YouTube!** Готовлюсь извлечь ролик/клип.")
+        st.success("📺 **Обнаружена ссылка из YouTube!**")
     elif "tiktok.com" in link_lower:
-        st.warning("🎵 **Обнаружена ссылка из TikTok!** Готовлюсь извлечь тренд.")
+        st.warning("🎵 **Обнаружена ссылка из TikTok!**")
     elif "vk.com" in link_lower:
-        st.error("🔵 **Обнаружена ссылка из ВКонтакте!** Готовлюсь извлечь видео/клип.")
-    else:
-        st.subheader("🔗 **Обнаружена ссылка!** Пытаюсь распознать сайт...")
+        st.error("🔵 **Обнаружена ссылка из ВКонтакте!**")
 
-    # Получаем информацию о видео с защитой от блокировок
-    ydl_opts_info = {
+    # Мощные настройки для обхода блокировок 403 Forbidden
+    ydl_opts_base = {
         'noplaylist': True,
+        'quiet': True,
+        'no_check_certificate': True,
+        'extracted_flat': False,
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Sec-Fetch-Mode': 'navigate',
         }
     }
 
-    with st.spinner("🔍 Анализирую ссылку и ищу обложку..."):
+    with st.spinner("🔍 Умный анализ ссылки..."):
         try:
-            with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
+            with yt_dlp.YoutubeDL(ydl_opts_base) as ydl:
                 info = ydl.extract_info(link, download=False)
-                
                 video_title = info.get('title', 'Медиа файл')
                 thumbnail_url = info.get('thumbnail', None)
                 direct_video_url = info.get('url', None)
 
             st.subheader(f"📝 {video_title}")
 
-            # ================= 3. СКАЧИВАНИЕ ОБЛОЖЕК И ФОТО (ПРЕВЬЮ) =================
             if thumbnail_url:
                 st.image(thumbnail_url, caption="📸 Обложка вашего видео", use_container_width=True)
-                st.link_button("🖼️ Открыть и скачать обложку в HD", thumbnail_url, use_container_width=True)
+                st.link_button("🖼️ Открыть обложку в HD", thumbnail_url, use_container_width=True)
 
-            # ================= 1. ВСТРОЕННЫЙ МЕДИАПЛЕЕР =================
             st.subheader("📺 Посмотреть / Послушать прямо на сайте:")
             if direct_video_url:
                 st.video(direct_video_url)
             else:
-                st.warning("⚠️ Не удалось запустить онлайн-плеер для этого сайта, но вы все еще можете скачать файл ниже!")
+                st.warning("⚠️ Онлайн-плеер недоступен, но файл можно скачать кнопками ниже!")
 
         except Exception as e:
-            st.error(f"Не удалось загрузить превью. Попробуйте скачать файл кнопками ниже. Ошибка: {e}")
+            st.error(f"Не удалось загрузить онлайн-превью. Но вы можете попробовать скачать файл кнопками ниже!")
 
-    # ================= БЛОК ДЛЯ СКАЧИВАНИЯ ФАЙЛОВ =================
+    # Блок скачивания
     st.markdown("---")
     st.subheader("📥 Выберите формат для скачивания на устройство:")
     
@@ -78,27 +97,28 @@ if link:
         audio_quality = st.selectbox("🎛️ Звук (MP3):", ["320 kbps (Премиум)", "192 kbps (Хорошее)"])
 
     bitrate = "320" if "320" in audio_quality else "192"
+    
+    # Настройка скачивания видео (выбираем форматы, которые реже вызывают 403 ошибку)
     if "1080p" in video_quality:
-        video_format = "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]/best"
+        video_format = "best[height<=1080][ext=mp4]/best"
     elif "720p" in video_quality:
-        video_format = "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best"
+        video_format = "best[height<=720][ext=mp4]/best"
     else:
-        video_format = "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480][ext=mp4]/best"
+        video_format = "best[height<=480][ext=mp4]/best"
 
     col1, col2 = st.columns(2)
 
     # Кнопка MP4
     with col1:
         if st.button("🎥 Скачать MP4 Видео", use_container_width=True):
-            with st.spinner("🚀 Загрузка видео на сервер..."):
+            with st.spinner("🚀 Скачивание видео..."):
                 try:
                     with tempfile.TemporaryDirectory() as tmpdir:
-                        ydl_opts = {
+                        ydl_opts = ydl_opts_base.copy()
+                        ydl_opts.update({
                             'outtmpl': f'{tmpdir}/%(title)s.%(ext)s',
                             'format': video_format,
-                            'noplaylist': True,
-                            'http_headers': ydl_opts_info['http_headers']
-                        }
+                        })
                         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                             info = ydl.extract_info(link, download=True)
                             filename = ydl.prepare_filename(info)
@@ -106,32 +126,31 @@ if link:
                         with open(filename, "rb") as f:
                             st.success("✨ Видео готово!")
                             st.download_button(
-                                label="📥 Сохранить MP4 на устройство",
+                                label="📥 Сохранить MP4 файл",
                                 data=f.read(),
                                 file_name=os.path.basename(filename),
                                 mime="video/mp4",
                                 use_container_width=True
                             )
                 except Exception as e:
-                    st.error(f"Ошибка при скачивании видео: {e}")
+                    st.error(f"Ошибка: {e}\nПопробуйте другую ссылку.")
 
     # Кнопка MP3
     with col2:
         if st.button("🎶 Скачать MP3 Звук", use_container_width=True):
-            with st.spinner("🎵 Извлечение аудио..."):
+            with st.spinner("🎵 Извлечение звука..."):
                 try:
                     with tempfile.TemporaryDirectory() as tmpdir:
-                        ydl_opts = {
+                        ydl_opts = ydl_opts_base.copy()
+                        ydl_opts.update({
                             'outtmpl': f'{tmpdir}/%(title)s.%(ext)s',
                             'format': 'bestaudio/best',
-                            'noplaylist': True,
-                            'http_headers': ydl_opts_info['http_headers'],
                             'postprocessors': [{
                                 'key': 'FFmpegExtractAudio',
                                 'preferredcodec': 'mp3',
                                 'preferredquality': bitrate,
                             }],
-                        }
+                        })
                         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                             info = ydl.extract_info(link, download=True)
                             filename = ydl.prepare_filename(info)
@@ -142,14 +161,14 @@ if link:
                             st.balloons()
                             st.success("✨ Звук извлечен!")
                             st.download_button(
-                                label="📥 Сохранить MP3 на устройство",
+                                label="📥 Сохранить MP3 файл",
                                 data=f.read(),
                                 file_name=os.path.basename(mp3_filename),
                                 mime="audio/mp3",
                                 use_container_width=True
                             )
                 except Exception as e:
-                    st.error(f"Ошибка при извлечении аудио: {e}")
+                    st.error(f"Ошибка: {e}\nПопробуйте другую ссылку.")
 
 # Подвал
 st.markdown("---")
