@@ -1,4 +1,2 @@
 streamlit
 yt-dlp
-moviepy>=2.0.0.dev2
-decorating
