@@ -6,7 +6,7 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 # ================= 💰 НАСТРОЙКИ ПРЕМИУМА =================
 SECRET_KEY = "Ruhinchik_PRO_2026"
-DONATE_URL = "https://donationalerts.com" # СЮДА ВСТАВЬ СВОЙ ДОНАТ!
+DONATE_URL = "https://www.donationalerts.com/r/ruhin_hesenov" # СЮДА ВСТАВЬ СВОЙ ДОНАТ!
 # =========================================================
 
 st.set_page_config(page_title="Media, Games & Mobile Premium", page_icon="👑", layout="centered")
