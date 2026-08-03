@@ -3,33 +3,18 @@ import yt_dlp
 import os
 import tempfile
 
-# 🎨 Полная настройка темы и страницы
+# Настройка страницы
 st.set_page_config(
-    page_title="Media Mega Комбайн v3.4", 
+    page_title="Media Mega Комбайн v3.5", 
     page_icon="🚀", 
     layout="centered"
 )
 
-# Меняем фон сайта через безопасный CSS, который точно сработает в 2026 году
-st.markdown("""
-    <style>
-    /* Меняем фон всего приложения */
-    .stApp {
-        background-color: #0d0b18 !important;
-    }
-    /* Делаем текст заголовков красивым неоновым */
-    h1 {
-        color: #b388ff !important;
-        text-shadow: 0 0 10px rgba(179, 136, 255, 0.4);
-    }
-    </style>
-""", unsafe_allowed_html=True)
-
-# Твой красивый баннер вверху
+# Твой красивый баннер со звуковой волной вверху
 banner_url = "https://squarespace-cdn.com"
 st.image(banner_url, use_container_width=True)
 
-st.title("🚀 Media Mega Комбайн v3.4")
+st.title("🚀 Media Mega Комбайн v3.5")
 st.write("Скачивайте, слушайте и смотрите медиа со всех соцсетей в один клик!")
 
 # Поле ввода ссылки
@@ -84,7 +69,7 @@ if link:
                 st.warning("⚠️ Онлайн-плеер недоступен, но файл можно скачать кнопками ниже!")
 
         except Exception as e:
-            st.error(f"Не удалось загрузить онлайн-превью. Но вы можете попробовать скачать файл кнопками ниже!")
+            st.error("Не удалось загрузить онлайн-превью. Но вы можете попробовать скачать файл кнопками ниже!")
 
     # Блок скачивания
     st.markdown("---")
@@ -98,7 +83,6 @@ if link:
 
     bitrate = "320" if "320" in audio_quality else "192"
     
-    # Настройка скачивания видео (выбираем форматы, которые реже вызывают 403 ошибку)
     if "1080p" in video_quality:
         video_format = "best[height<=1080][ext=mp4]/best"
     elif "720p" in video_quality:
@@ -133,7 +117,7 @@ if link:
                                 use_container_width=True
                             )
                 except Exception as e:
-                    st.error(f"Ошибка: {e}\nПопробуйте другую ссылку.")
+                    st.error(f"Ошибка при скачивании. Попробуйте другую ссылку.")
 
     # Кнопка MP3
     with col2:
@@ -168,7 +152,7 @@ if link:
                                 use_container_width=True
                             )
                 except Exception as e:
-                    st.error(f"Ошибка: {e}\nПопробуйте другую ссылку.")
+                    st.error(f"Ошибка при извлечении аудио. Попробуйте другую ссылку.")
 
 # Подвал
 st.markdown("---")
