@@ -4,9 +4,9 @@ import os
 import tempfile
 
 # Настройка страницы
-st.set_page_config(page_title="Media Mega Комбайн v3.0", page_icon="🚀", layout="centered")
+st.set_page_config(page_title="Media Mega Комбайн v3.1", page_icon="🚀", layout="centered")
 
-st.title("🚀 Media Mega Комбайн v3.0")
+st.title("🚀 Media Mega Комбайн v3.1")
 st.write("Скачивайте, слушайте и смотрите медиа со всех соцсетей в один клик!")
 
 # Поле ввода ссылки
@@ -28,49 +28,46 @@ if link:
     else:
         st.subheader("🔗 **Обнаружена ссылка!** Пытаюсь распознать сайт...")
 
-    # Получаем информацию о видео без его скачивания (для обложки и плеера)
+    # Получаем информацию о видео с защитой от блокировок (User-Agent)
+    # Это решает проблему с ошибкой HTTP Error 403: Forbidden
+    ydl_opts_info = {
+        'noplaylist': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+    }
+
     with st.spinner("🔍 Анализирую ссылку и ищу обложку..."):
         try:
-            ydl_opts_info = {'noplaylist': True}
             with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
                 info = ydl.extract_info(link, download=False)
                 
                 video_title = info.get('title', 'Медиа файл')
                 thumbnail_url = info.get('thumbnail', None)
-                direct_video_url = info.get('url', None) # Прямая ссылка для плеера
+                direct_video_url = info.get('url', None)
 
             st.subheader(f"📝 {video_title}")
 
             # ================= 3. СКАЧИВАНИЕ ОБЛОЖЕК И ФОТО (ПРЕВЬЮ) =================
             if thumbnail_url:
                 st.image(thumbnail_url, caption="📸 Обложка (Превью) вашего видео", use_container_width=True)
-                # Даем ссылку, чтобы пользователь мог просто сохранить картинку
-                st.markdown(f"""
-                    <div style='text-align: center; margin-bottom: 20px;'>
-                        <a href='{thumbnail_url}' target='_blank'>
-                            <button style='background-color: #2b2b2b; color: white; border: 1px solid #444; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold;'>
-                                🖼️ Открыть и скачать обложку в HD
-                            </button>
-                        </a>
-                    </div>
-                """, unsafe_allowed_html=True)
+                # Безопасная кнопка-ссылка без использования опасного HTML кода
+                st.link_button("🖼️ Открыть и скачать обложку в HD", thumbnail_url, use_container_width=True)
 
             # ================= 1. ВСТРОЕННЫЙ МЕДИАПЛЕЕР =================
             st.subheader("📺 Посмотреть / Послушать прямо на сайте:")
             if direct_video_url:
-                # Встраиваем видеоплеер. Если это аудио, Streamlit автоматически сделает удобный плеер без картинки
                 st.video(direct_video_url)
             else:
                 st.warning("⚠️ Не удалось запустить онлайн-плеер для этого сайта, но вы все еще можете скачать файл ниже!")
 
         except Exception as e:
-            st.error(f"Не удалось получить превью. Возможно, аккаунт приватный. Ошибка: {e}")
+            st.error(f"Не удалось загрузить превью. Попробуйте скачать файл кнопками ниже. Ошибка: {e}")
 
     # ================= БЛОК ДЛЯ СКАЧИВАНИЯ ФАЙЛОВ =================
     st.markdown("---")
     st.subheader("📥 Выберите формат для скачивания на устройство:")
     
-    # Настройки качества
     setting_col1, setting_col2 = st.columns(2)
     with setting_col1:
         video_quality = st.selectbox("🎬 Видео (MP4):", ["1080p (Full HD)", "720p (HD)", "480p (Эконом)"])
@@ -87,7 +84,7 @@ if link:
 
     col1, col2 = st.columns(2)
 
-    # Кнопка MP4
+    # Кнопка MP4 с защитой User-Agent
     with col1:
         if st.button("🎥 Скачать MP4 Видео", use_container_width=True):
             with st.spinner("🚀 Загрузка видео на сервер..."):
@@ -97,6 +94,7 @@ if link:
                             'outtmpl': f'{tmpdir}/%(title)s.%(ext)s',
                             'format': video_format,
                             'noplaylist': True,
+                            'http_headers': ydl_opts_info['http_headers']
                         }
                         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                             info = ydl.extract_info(link, download=True)
@@ -114,7 +112,7 @@ if link:
                 except Exception as e:
                     st.error(f"Ошибка при скачивании видео: {e}")
 
-    # Кнопка MP3
+    # Кнопка MP3 с защитой User-Agent
     with col2:
         if st.button("🎶 Скачать MP3 Звук", use_container_width=True):
             with st.spinner("🎵 Извлечение аудио..."):
@@ -124,6 +122,7 @@ if link:
                             'outtmpl': f'{tmpdir}/%(title)s.%(ext)s',
                             'format': 'bestaudio/best',
                             'noplaylist': True,
+                            'http_headers': ydl_opts_info['http_headers'],
                             'postprocessors': [{
                                 'key': 'FFmpegExtractAudio',
                                 'preferredcodec': 'mp3',
