@@ -2,6 +2,7 @@ import streamlit as st
 import yt_dlp
 import os
 import tempfile
+import requests
 from PIL import Image, ImageEnhance, ImageFilter
 
 # ================= 💰 НАСТРОЙКИ ПРЕМИУМА =================
@@ -11,7 +12,7 @@ DONATE_URL = "https://donationalerts.com"
 
 st.set_page_config(page_title="Media, Games & Mobile Premium", page_icon="👑", layout="centered")
 
-st.title("🌌 Космо-Комбайн v11.1 Финал")
+st.title("🌌 Космо-Комбайн v11.2 Финал")
 st.write("Скачивайте медиа, улучшайте фото и играйте прямо с телефона!")
 
 tab_link, tab_file, tab_games = st.tabs(["🔗 Ссылка", "🎨 ИИ-Реставратор", "🎮 Яндекс Игры"])
@@ -23,81 +24,72 @@ with tab_link:
 
     if link:
         st.markdown("---")
+        
+        # 🧪 СУПЕР-ОБХОД ДЛЯ PINTEREST, TIKTOK И INSTAGRAM ЧЕРЕЗ БЕСПЛАТНЫЙ API
+        api_success = False
+        api_video_url = None
+        
+        with st.spinner("🚀 Запуск супер-обхода блокировок..."):
+            try:
+                # Отправляем запрос на мощный международный API для вытаскивания медиа
+                api_res = requests.get(f"https://vvesc.com{link}", timeout=10).json()
+                if api_res and api_res.get("success") and api_res.get("url"):
+                    api_video_url = api_res.get("url")
+                    api_success = True
+            except Exception:
+                api_success = False
+
+        # Обычный анализ для Ютуба и ВК, если API не сработал
         ydl_opts_base = {
-            'noplaylist': True, 
-            'quiet': True, 
-            'no_check_certificate': True,
+            'noplaylist': True, 'quiet': True, 'no_check_certificate': True,
             'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
         }
         
-        direct_video_url = None
-        thumbnail_url = None
-        
-        with st.spinner("🔍 Умный анализ медиа..."):
+        # Показываем обложку, если её удалось найти
+        if not api_success:
             try:
                 with yt_dlp.YoutubeDL(ydl_opts_base) as ydl:
                     info = ydl.extract_info(link, download=False)
-                    video_title = info.get('title', 'Медиа файл')
                     thumbnail_url = info.get('thumbnail', None)
-                    
-                    # Пытаемся вытащить прямую ссылку на сам видеофайл
-                    if 'formats' in info:
-                        for f in info['formats']:
-                            if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('url'):
-                                direct_video_url = f['url']
-                                break
-                    if not direct_video_url:
-                        direct_video_url = info.get('url', None)
-                        
-                st.write(f"**📝 {video_title}**")
-                if thumbnail_url: st.image(thumbnail_url, use_container_width=True)
+                    if thumbnail_url: st.image(thumbnail_url, use_container_width=True)
             except Exception:
-                st.write("🔗 Ссылка распознана. Готова к обработке!")
+                pass
 
         st.markdown("---")
+        
+        # Если наш супер-обход успешно перехватил прямую ссылку
+        if api_success and api_video_url:
+            st.success("🎯 Защита соцсети успешно взломана!")
+            st.link_button("🔥 СКАЧАТЬ ВИДЕО НАПРЯМУЮ (100% БЕЗ БЛОКИРОВОК)", api_video_url, use_container_width=True)
+            st.caption("Подсказка: Если видео открылось в новой вкладке — зажми на нём пальцем (или нажми три точки в углу) и выбери 'Скачать'.")
+        
+        # Обычные кнопки для YouTube и других сайтов
+        st.write("#### 📥 Альтернативные кнопки сервера:")
         col1, col2 = st.columns(2)
         
-        # Кнопка MP4
         with col1:
-            if st.button("🎥 Скачать MP4 Видео", use_container_width=True, key="btn_mp4_link"):
-                with st.spinner("🚀 Скачивание файла..."):
+            if st.button("🎥 Скачать MP4 Видео (Через сервер)", use_container_width=True, key="btn_mp4_link"):
+                with st.spinner("🚀 Скачивание..."):
                     try:
                         with tempfile.TemporaryDirectory() as tmpdir:
                             ydl_opts = ydl_opts_base.copy()
-                            ydl_opts.update({
-                                'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 
-                                'format': 'best[ext=mp4]/best'
-                            })
+                            ydl_opts.update({'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 'format': 'best[ext=mp4]/best'})
                             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                                 info = ydl.extract_info(link, download=True)
                                 filename = ydl.prepare_filename(info)
                             with open(filename, "rb") as f:
                                 st.balloons()
-                                st.download_button("📥 Сохранить MP4 на устройство", f.read(), file_name=os.path.basename(filename), mime="video/mp4", use_container_width=True)
+                                st.download_button("📥 Сохранить MP4 файл", f.read(), file_name=os.path.basename(filename), mime="video/mp4", use_container_width=True)
                     except Exception: 
-                        st.error("Сервер заблокирован защитой соцсети.")
-                        # Если сервер выбил 403 ошибку, даем пользователю прямую ссылку в обход блокировки!
-                        if direct_video_url:
-                            st.info("💡 Найдено решение! Нажмите кнопку ниже, чтобы забрать файл напрямую:")
-                            st.link_button("🚀 Скачать напрямую через браузер", direct_video_url, use_container_width=True)
-                            st.caption("Подсказка: В открывшейся вкладке нажмите на видео тремя точками или зажмите пальцем и выберите 'Скачать'")
+                        st.error("Сервер заблокирован. Если сверху появилась большая кнопка — используйте её!")
                         
-        # Кнопка MP3
         with col2:
-            if st.button("🎶 Скачать MP3 Звук", use_container_width=True, key="btn_mp3_link"):
+            if st.button("🎶 Скачать MP3 Звук (Через сервер)", use_container_width=True, key="btn_mp3_link"):
                 with st.spinner("🎵 Извлечение звука..."):
                     try:
                         with tempfile.TemporaryDirectory() as tmpdir:
                             ydl_opts = ydl_opts_base.copy()
-                            ydl_opts.update({
-                                'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 
-                                'format': 'bestaudio/best', 
-                                'postprocessors': [{
-                                    'key': 'FFmpegExtractAudio', 
-                                    'preferredcodec': 'mp3', 
-                                    'preferredquality': '192'
-                                }]
-                            })
+                            ydl_opts.update({'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}]})
                             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                                 info = ydl.extract_info(link, download=True)
                                 filename = ydl.prepare_filename(info)
@@ -105,17 +97,14 @@ with tab_link:
                                 mp3_filename = base + ".mp3"
                             with open(mp3_filename, "rb") as f:
                                 st.balloons()
-                                st.download_button("📥 Сохранить MP3 в музыку", f.read(), file_name=os.path.basename(mp3_filename), mime="audio/mp3", use_container_width=True)
+                                st.download_button("📥 Сохранить MP3 файл", f.read(), file_name=os.path.basename(mp3_filename), mime="audio/mp3", use_container_width=True)
                     except Exception: 
-                        st.error("Ошибка извлечения аудиодорожки.")
-                        if direct_video_url:
-                            st.info("💡 Откройте видеопоток напрямую и сохраните его звук через браузер:")
-                            st.link_button("🚀 Открыть аудиопоток", direct_video_url, use_container_width=True)
+                        st.error("Ошибка извлечения аудиодорожки сервером.")
 
 # ================= ВКЛАДКА 2: ИИ-РЕСТАВРАТОР ФОТО / ГАЛЕРЕИ =================
 with tab_file:
     st.write("### 🎨 Магический ИИ-Реставратор")
-    file_type = st.radio("What you want to do?", ["🖼️ Восстановить фото", "📁 Видео из галереи в MP3"])
+    file_type = st.radio("Что делаем?", ["🖼️ Восстановить фото", "📁 Видео из галереи в MP3"])
     
     if file_type == "🖼️ Восстановить фото":
         uploaded_image = st.file_uploader("Загрузите картинку с телефона", type=["jpg", "jpeg", "png"])
@@ -173,3 +162,10 @@ with tab_games:
     
     if "Шашки" in selected_game: game_url = "https://html5games.com"
     elif "Шахматы" in selected_game: game_url = "https://html5games.com"
+    elif "Гонки" in selected_game: game_url = "https://html5games.com"
+
+    st.components.v1.iframe(game_url, height=550, scrolling=False)
+
+# Подвал
+st.markdown("---")
+st.write("👨‍💻 Разработано молодым программистом | 📱 Полная поддержка iOS и Android")
