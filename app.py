@@ -11,19 +11,18 @@ DONATE_URL = "https://donationalerts.com"
 
 st.set_page_config(page_title="Media, Games & Mobile Premium", page_icon="👑", layout="centered")
 
-st.title("🌌 Космо-Комбайн v11.0 Финал")
+st.title("🌌 Космо-Комбайн v11.1 Финал")
 st.write("Скачивайте медиа, улучшайте фото и играйте прямо с телефона!")
 
 tab_link, tab_file, tab_games = st.tabs(["🔗 Ссылка", "🎨 ИИ-Реставратор", "🎮 Яндекс Игры"])
 
-# ================= ВКЛАДКА 1: СКАЧИВАНИЕ ПО ССЫЛКЕ (КАК В ПЕРВОМ КОДЕ) =================
+# ================= ВКЛАДКА 1: СКАЧИВАНИЕ ПО ССЫЛКЕ =================
 with tab_link:
     st.write("### 🔗 Загрузчик из соцсетей")
     link = st.text_input("Вставьте вашу ссылку сюда:", placeholder="https://...", key="link_input")
 
     if link:
         st.markdown("---")
-        # Базовые и самые надежные настройки из первой версии кода
         ydl_opts_base = {
             'noplaylist': True, 
             'quiet': True, 
@@ -31,28 +30,40 @@ with tab_link:
             'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
         }
         
+        direct_video_url = None
+        thumbnail_url = None
+        
         with st.spinner("🔍 Умный анализ медиа..."):
             try:
                 with yt_dlp.YoutubeDL(ydl_opts_base) as ydl:
                     info = ydl.extract_info(link, download=False)
                     video_title = info.get('title', 'Медиа файл')
                     thumbnail_url = info.get('thumbnail', None)
+                    
+                    # Пытаемся вытащить прямую ссылку на сам видеофайл
+                    if 'formats' in info:
+                        for f in info['formats']:
+                            if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('url'):
+                                direct_video_url = f['url']
+                                break
+                    if not direct_video_url:
+                        direct_video_url = info.get('url', None)
+                        
                 st.write(f"**📝 {video_title}**")
                 if thumbnail_url: st.image(thumbnail_url, use_container_width=True)
             except Exception:
-                st.write("🔗 Ссылка распознана. Готова к скачиванию!")
+                st.write("🔗 Ссылка распознана. Готова к обработке!")
 
         st.markdown("---")
         col1, col2 = st.columns(2)
         
-        # Кнопка MP4 (Чистая логика из первой версии)
+        # Кнопка MP4
         with col1:
             if st.button("🎥 Скачать MP4 Видео", use_container_width=True, key="btn_mp4_link"):
                 with st.spinner("🚀 Скачивание файла..."):
                     try:
                         with tempfile.TemporaryDirectory() as tmpdir:
                             ydl_opts = ydl_opts_base.copy()
-                            # Качаем лучшее готовое mp4 видео, без разделения на видео/аудио потоки
                             ydl_opts.update({
                                 'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 
                                 'format': 'best[ext=mp4]/best'
@@ -63,10 +74,15 @@ with tab_link:
                             with open(filename, "rb") as f:
                                 st.balloons()
                                 st.download_button("📥 Сохранить MP4 на устройство", f.read(), file_name=os.path.basename(filename), mime="video/mp4", use_container_width=True)
-                    except Exception as e: 
-                        st.error("Не удалось скачать через сервер. Попробуйте другую ссылку.")
+                    except Exception: 
+                        st.error("Сервер заблокирован защитой соцсети.")
+                        # Если сервер выбил 403 ошибку, даем пользователю прямую ссылку в обход блокировки!
+                        if direct_video_url:
+                            st.info("💡 Найдено решение! Нажмите кнопку ниже, чтобы забрать файл напрямую:")
+                            st.link_button("🚀 Скачать напрямую через браузер", direct_video_url, use_container_width=True)
+                            st.caption("Подсказка: В открывшейся вкладке нажмите на видео тремя точками или зажмите пальцем и выберите 'Скачать'")
                         
-        # Кнопка MP3 (Чистая логика из первой версии)
+        # Кнопка MP3
         with col2:
             if st.button("🎶 Скачать MP3 Звук", use_container_width=True, key="btn_mp3_link"):
                 with st.spinner("🎵 Извлечение звука..."):
@@ -92,11 +108,14 @@ with tab_link:
                                 st.download_button("📥 Сохранить MP3 в музыку", f.read(), file_name=os.path.basename(mp3_filename), mime="audio/mp3", use_container_width=True)
                     except Exception: 
                         st.error("Ошибка извлечения аудиодорожки.")
+                        if direct_video_url:
+                            st.info("💡 Откройте видеопоток напрямую и сохраните его звук через браузер:")
+                            st.link_button("🚀 Открыть аудиопоток", direct_video_url, use_container_width=True)
 
 # ================= ВКЛАДКА 2: ИИ-РЕСТАВРАТОР ФОТО / ГАЛЕРЕИ =================
 with tab_file:
     st.write("### 🎨 Магический ИИ-Реставратор")
-    file_type = st.radio("Что делаем?", ["🖼️ Восстановить фото", "📁 Видео из галереи в MP3"])
+    file_type = st.radio("What you want to do?", ["🖼️ Восстановить фото", "📁 Видео из галереи в MP3"])
     
     if file_type == "🖼️ Восстановить фото":
         uploaded_image = st.file_uploader("Загрузите картинку с телефона", type=["jpg", "jpeg", "png"])
@@ -109,8 +128,8 @@ with tab_file:
             if contrast_val > 1.5:
                 st.warning("⚠️ Выбран Ультра-контраст Премиум уровня!")
                 st.markdown(f"🎁 **[ПОЛУЧИТЬ ПРЕМИУМ КЛЮЧ ЗА ДОНАТ]({DONATE_URL})**")
-                user_key_img = st.text_input("🔑 Введите Премиум-ключ:", type="password", key="key_img")
-                if user_key_img == SECRET_KEY:
+                user_key = st.text_input("🔑 Введите Премиум-ключ:", type="password", key="key_img")
+                if user_key == SECRET_KEY:
                     st.success("✅ Доступ открыт!")
                     photo_premium = True
                 else:
@@ -154,10 +173,3 @@ with tab_games:
     
     if "Шашки" in selected_game: game_url = "https://html5games.com"
     elif "Шахматы" in selected_game: game_url = "https://html5games.com"
-    elif "Гонки" in selected_game: game_url = "https://html5games.com"
-
-    st.components.v1.iframe(game_url, height=550, scrolling=False)
-
-# Подвал
-st.markdown("---")
-st.write("👨‍💻 Разработано молодым программистом | 📱 Полная поддержка iOS и Android")
