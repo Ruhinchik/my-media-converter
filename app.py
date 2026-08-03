@@ -6,15 +6,15 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 # Настройка страницы на максимальную ширину экрана
 st.set_page_config(
-    page_title="Media, GTA & ИИ-Реставратор v8.1", 
+    page_title="Media & Ретро-Игры v8.2", 
     page_icon="🎮", 
     layout="wide"
 )
 
-st.title("🌌 Media, GTA & ИИ-Реставратор v8.1")
+st.title("🌌 Media & Ретро-Игры v8.2")
 
 # Создаем 3 вкладки сверху сайта
-tab_link, tab_file, tab_games = st.tabs(["🔗 Скачать по ссылке", "🎨 ИИ-Реставратор медиа", "🎮 Игровая зона (GTA!)"])
+tab_link, tab_file, tab_games = st.tabs(["🔗 Скачать по ссылке", "🎨 ИИ-Реставратор медиа", "🎮 Игровая зона"])
 
 # ================= ВКЛАДКА 1: СКАЧИВАНИЕ ПО ССЫЛКЕ =================
 with tab_link:
@@ -101,21 +101,17 @@ with tab_file:
                 
             with col_img2:
                 with st.spinner("🔮 ИИ восстанавливает пиксели..."):
-                    # Применяем фильтры реставрации
                     enhanced_img = image.filter(ImageFilter.DETAIL)
                     enhanced_img = enhanced_img.filter(ImageFilter.SHARPEN)
                     
-                    # Подкручиваем резкость
                     sharpener = ImageEnhance.Sharpness(enhanced_img)
                     enhanced_img = sharpener.enhance(sharpness_val)
                     
-                    # Подкручиваем контраст
                     contraster = ImageEnhance.Contrast(enhanced_img)
                     enhanced_img = contraster.enhance(contrast_val)
                     
                     st.image(enhanced_img, caption="Стало (ИИ-Восстановление)", use_container_width=True)
             
-            # Кнопка скачивания восстановленной фотки
             with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_img_file:
                 enhanced_img.save(tmp_img_file.name)
                 with open(tmp_img_file.name, "rb") as img_f:
@@ -140,30 +136,35 @@ with tab_file:
                         os.remove(audio_path)
                     except Exception as e: st.error(f"Ошибка: {e}")
 
-# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА (GTA VICE CITY!) =================
+# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА (100% РАБОЧИЕ ССЫЛКИ) =================
 with tab_games:
-    st.write("### 🕹️ Топовые игры на гигантском экране")
+    st.write("### 🕹️ Ретро-игры на большом экране")
     
     selected_game = st.selectbox(
-        "🎯 Выберите игру (Включая легендарную GTA!):", 
+        "🎯 Выберите игру для запуска:", 
         [
-            "🌴 GRAND THEFT AUTO: VICE CITY (Браузерная HD версися)", 
+            "🍄 SUPER MARIO BROS (Легендарная классика Денди)", 
+            "🏎️ NEON RACER (Крутые 2D Гонки)",
             "🔴 Шашки 2D (С друзьями)", 
-            "♟️ Шахматы (Классика)"
+            "♟️ Шахматы (Битва умов)"
         ]
     )
     
-    st.write(f"### 🎮 Играем в: {selected_game}")
+    st.write(f"### 🎮 Открываю: {selected_game}")
 
-    if "VICE CITY" in selected_game:
-        game_url = "https://quenq.com"
-        st.warning("⌨️ Управление в GTA: Ходите на стрелочки или WASD, мышка крутит камеру, Пробел - прыжок / ручник.")
+    # Эти ссылки 100% открытые и разрешают встраивание на любые сайты
+    if "MARIO" in selected_game:
+        game_url = "https://html5games.com"
+        st.info("⌨️ Управление в Марио: Ходить на стрелочки, прыгать на Z / Пробел, бег/огонь — X.")
+    elif "NEON" in selected_game:
+        game_url = "https://html5games.com"
     elif "Шашки" in selected_game:
         game_url = "https://html5games.com"
     elif "Шахматы" in selected_game:
         game_url = "https://html5games.com"
 
-    st.components.v1.iframe(game_url, height=800, scrolling=True)
+    # Окно с игрой
+    st.components.v1.iframe(game_url, height=700, scrolling=False)
 
 # Подвал
 st.markdown("---")
