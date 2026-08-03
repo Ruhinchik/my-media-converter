@@ -5,20 +5,24 @@ import tempfile
 
 # Настройка страницы
 st.set_page_config(
-    page_title="Media Mega Комбайн v4.1", 
+    page_title="Media Mega Комбайн v4.2", 
     page_icon="🚀", 
     layout="centered"
 )
 
-# Твой баннер со звуковой волной вверху
-banner_url = "https://squarespace-cdn.com"
-st.image(banner_url, use_container_width=True)
-
-st.title("🚀 Media Mega Комбайн v4.1")
+st.title("🚀 Media Mega Комбайн v4.2")
 st.write("Скачивайте видео, музыку и фото из Pinterest, YouTube, TikTok, VK и Instagram!")
 
 # Поле ввода ссылки
 link = st.text_input("🔗 Вставьте вашу ссылку сюда:", placeholder="https://...")
+
+# Если ссылка ЕЩЕ НЕ введена, показываем твою красивую космическую картинку в центре экрана
+if not link:
+    st.markdown("---")
+    st.subheader("🌌 Наш космический медиацентр готов к работе!")
+    # Твоя рабочая ссылка на космос
+    space_image_url = "https://gstatic.com"
+    st.image(space_image_url, use_container_width=True, caption="Вставьте ссылку выше, чтобы начать скачивание")
 
 if link:
     st.markdown("---")
@@ -67,7 +71,7 @@ if link:
 
             st.subheader(f"📝 {video_title}")
 
-            # Показываем обложку/картинку
+            # Показываем обложку/картинку из ссылки
             if thumbnail_url:
                 st.image(thumbnail_url, caption="📸 Найденное изображение / Обложка", use_container_width=True)
                 st.link_button("🖼️ Открыть и сохранить картинку в HD", thumbnail_url, use_container_width=True)
