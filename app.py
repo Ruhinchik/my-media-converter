@@ -5,7 +5,7 @@ import tempfile
 
 # Настройка страницы
 st.set_page_config(
-    page_title="Media Mega Комбайн v3.5", 
+    page_title="Media Mega Комбайн v3.6", 
     page_icon="🚀", 
     layout="centered"
 )
@@ -14,7 +14,7 @@ st.set_page_config(
 banner_url = "https://squarespace-cdn.com"
 st.image(banner_url, use_container_width=True)
 
-st.title("🚀 Media Mega Комбайн v3.5")
+st.title("🚀 Media Mega Комбайн v3.6")
 st.write("Скачивайте, слушайте и смотрите медиа со всех соцсетей в один клик!")
 
 # Поле ввода ссылки
@@ -34,17 +34,19 @@ if link:
     elif "vk.com" in link_lower:
         st.error("🔵 **Обнаружена ссылка из ВКонтакте!**")
 
-    # Мощные настройки для обхода блокировок 403 Forbidden
+    # СВЕРХМОЩНЫЕ НАСТРОЙКИ ДЛЯ ОБХОДА БЛОКИРОВОК СОЦСЕТЕЙ
     ydl_opts_base = {
         'noplaylist': True,
         'quiet': True,
         'no_check_certificate': True,
-        'extracted_flat': False,
+        'extractor_args': {
+            'youtube': ['player_client=android,web;player_skip=webpage_download'] # Имитируем вход с андроид-смартфона
+        },
+        'http_colors': False,
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Sec-Fetch-Mode': 'navigate',
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
         }
     }
 
@@ -54,7 +56,16 @@ if link:
                 info = ydl.extract_info(link, download=False)
                 video_title = info.get('title', 'Медиа файл')
                 thumbnail_url = info.get('thumbnail', None)
-                direct_video_url = info.get('url', None)
+                
+                # Ищем прямую ссылку на медиапоток
+                direct_video_url = None
+                if 'formats' in info:
+                    for f in info['formats']:
+                        if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('url'):
+                            direct_video_url = f['url']
+                            break
+                if not direct_video_url:
+                    direct_video_url = info.get('url', None)
 
             st.subheader(f"📝 {video_title}")
 
@@ -66,10 +77,10 @@ if link:
             if direct_video_url:
                 st.video(direct_video_url)
             else:
-                st.warning("⚠️ Онлайн-плеер недоступен, но файл можно скачать кнопками ниже!")
+                st.warning("⚠️ Онлайн-плеер недоступен из-за защиты сайта, но файл можно скачать кнопками ниже!")
 
         except Exception as e:
-            st.error("Не удалось загрузить онлайн-превью. Но вы можете попробовать скачать файл кнопками ниже!")
+            st.error("Не удалось загрузить онлайн-превью из-за защиты соцсети. Но вы можете попробовать скачать файл кнопками ниже!")
 
     # Блок скачивания
     st.markdown("---")
@@ -83,12 +94,8 @@ if link:
 
     bitrate = "320" if "320" in audio_quality else "192"
     
-    if "1080p" in video_quality:
-        video_format = "best[height<=1080][ext=mp4]/best"
-    elif "720p" in video_quality:
-        video_format = "best[height<=720][ext=mp4]/best"
-    else:
-        video_format = "best[height<=480][ext=mp4]/best"
+    # Для облачных серверов лучше всего запрашивать готовые форматы MP4, чтобы не вызывать ошибку 403
+    video_format = "best[ext=mp4]/best"
 
     col1, col2 = st.columns(2)
 
@@ -100,7 +107,7 @@ if link:
                     with tempfile.TemporaryDirectory() as tmpdir:
                         ydl_opts = ydl_opts_base.copy()
                         ydl_opts.update({
-                            'outtmpl': f'{tmpdir}/%(title)s.%(ext)s',
+                            'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s',
                             'format': video_format,
                         })
                         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -117,7 +124,7 @@ if link:
                                 use_container_width=True
                             )
                 except Exception as e:
-                    st.error(f"Ошибка при скачивании. Попробуйте другую ссылку.")
+                    st.error(f"Ошибка блокировки соцсети. Попробуйте другую ссылку (например, из Shorts или VK).")
 
     # Кнопка MP3
     with col2:
@@ -127,7 +134,7 @@ if link:
                     with tempfile.TemporaryDirectory() as tmpdir:
                         ydl_opts = ydl_opts_base.copy()
                         ydl_opts.update({
-                            'outtmpl': f'{tmpdir}/%(title)s.%(ext)s',
+                            'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s',
                             'format': 'bestaudio/best',
                             'postprocessors': [{
                                 'key': 'FFmpegExtractAudio',
@@ -152,7 +159,7 @@ if link:
                                 use_container_width=True
                             )
                 except Exception as e:
-                    st.error(f"Ошибка при извлечении аудио. Попробуйте другую ссылку.")
+                    st.error(f"Не удалось вырезать звук. Соцсеть заблокировала облачный сервер. Попробуйте Shorts/TikTok ссылку.")
 
 # Подвал
 st.markdown("---")
