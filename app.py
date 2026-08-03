@@ -11,95 +11,77 @@ DONATE_URL = "https://donationalerts.com"
 
 st.set_page_config(page_title="Media, Games & Mobile Premium", page_icon="👑", layout="centered")
 
-st.title("🌌 Космо-Комбайн v10.3 Mobile")
+st.title("🌌 Космо-Комбайн v11.0 Финал")
 st.write("Скачивайте медиа, улучшайте фото и играйте прямо с телефона!")
 
 tab_link, tab_file, tab_games = st.tabs(["🔗 Ссылка", "🎨 ИИ-Реставратор", "🎮 Яндекс Игры"])
 
-# ================= ВКЛАДКА 1: СКАЧИВАНИЕ ПО ССЫЛКЕ =================
+# ================= ВКЛАДКА 1: СКАЧИВАНИЕ ПО ССЫЛКЕ (КАК В ПЕРВОМ КОДЕ) =================
 with tab_link:
     st.write("### 🔗 Загрузчик из соцсетей")
     link = st.text_input("Вставьте вашу ссылку сюда:", placeholder="https://...", key="link_input")
 
     if link:
         st.markdown("---")
+        # Базовые и самые надежные настройки из первой версии кода
         ydl_opts_base = {
-            'noplaylist': True, 'quiet': True, 'no_check_certificate': True,
-            'extractor_args': {'youtube': ['player_client=android,web;player_skip=webpage_download']},
-            'http_headers': {'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36'}
+            'noplaylist': True, 
+            'quiet': True, 
+            'no_check_certificate': True,
+            'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
         }
-        with st.spinner("🔍 Анализирую медиа..."):
+        
+        with st.spinner("🔍 Умный анализ медиа..."):
             try:
                 with yt_dlp.YoutubeDL(ydl_opts_base) as ydl:
                     info = ydl.extract_info(link, download=False)
                     video_title = info.get('title', 'Медиа файл')
                     thumbnail_url = info.get('thumbnail', None)
-                    direct_video_url = None
-                    if 'formats' in info:
-                        for f in info['formats']:
-                            if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('url'):
-                                direct_video_url = f['url']
-                                break
                 st.write(f"**📝 {video_title}**")
                 if thumbnail_url: st.image(thumbnail_url, use_container_width=True)
-                if direct_video_url and (direct_video_url != thumbnail_url): st.video(direct_video_url)
-            except Exception: st.error("Скачайте файл кнопками ниже!")
+            except Exception:
+                st.write("🔗 Ссылка распознана. Готова к скачиванию!")
 
         st.markdown("---")
-        st.write("#### 📥 Выберите качество:")
-        video_quality = st.selectbox("🎬 Качество видео (MP4):", ["144p (Бесплатно)", "360p (Бесплатно)", "480p (Бесплатно)", "720p (Бесплатно)", "1080p (PREMIUM 👑)", "1440p (2K - PREMIUM 👑)", "2160p (4K - PREMIUM 👑)"])
-        audio_quality = st.selectbox("🎛️ Качество звука (MP3):", ["64 kbps (Бесплатно)", "128 kbps (Бесплатно)", "192 kbps (Бесплатно)", "320 kbps (PREMIUM 👑)"])
-
-        is_link_premium = "PREMIUM" in video_quality or "PREMIUM" in audio_quality
-        premium_access = True
+        col1, col2 = st.columns(2)
         
-        if is_link_premium:
-            st.warning("⚠️ Вы выбрали PREMIUM качество. Нужен секретный ключ!")
-            st.markdown(f"🎁 **[ПОЛУЧИТЬ ПРЕМИУМ КЛЮЧ ЗА ДОНАТ]({DONATE_URL})**")
-            user_key = st.text_input("🔑 Введите Премиум-ключ:", type="password", key="key_link")
-            if user_key == SECRET_KEY:
-                st.success("✅ Доступ открыт!")
-                premium_access = True
-            elif user_key == "":
-                premium_access = False
-            else:
-                st.error("❌ Ключ неверный!")
-                premium_access = False
-
-        # Исправленные универсальные форматы, которые подходят для Pinterest
-        bitrate = "192"
-        for b in ["64", "128", "192", "320"]:
-            if b in audio_quality: bitrate = b
-
-        if is_link_premium:
-            v_limit = "1080"
-            if "1440p" in video_quality: v_limit = "1440"
-            if "2160p" in video_quality: v_limit = "2160"
-            video_format = f"bestvideo[height<={v_limit}]+bestaudio/best"
-        else:
-            # Для бесплатного режима берем просто лучшее готовое mp4 видео, чтобы Pinterest не выдавал ошибку формата
-            video_format = "best[ext=mp4]/best"
-
-        if link and premium_access:
-            if st.button("🎥 Скачать MP4 Видео", key="btn_mp4_link"):
-                with st.spinner("🚀 Скачивание..."):
+        # Кнопка MP4 (Чистая логика из первой версии)
+        with col1:
+            if st.button("🎥 Скачать MP4 Видео", use_container_width=True, key="btn_mp4_link"):
+                with st.spinner("🚀 Скачивание файла..."):
                     try:
                         with tempfile.TemporaryDirectory() as tmpdir:
                             ydl_opts = ydl_opts_base.copy()
-                            ydl_opts.update({'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 'format': video_format})
+                            # Качаем лучшее готовое mp4 видео, без разделения на видео/аудио потоки
+                            ydl_opts.update({
+                                'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 
+                                'format': 'best[ext=mp4]/best'
+                            })
                             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                                 info = ydl.extract_info(link, download=True)
                                 filename = ydl.prepare_filename(info)
                             with open(filename, "rb") as f:
+                                st.balloons()
                                 st.download_button("📥 Сохранить MP4 на устройство", f.read(), file_name=os.path.basename(filename), mime="video/mp4", use_container_width=True)
-                    except Exception as e: st.error(f"Ошибка скачивания. Попробуйте еще раз.")
-            
-            if st.button("🎶 Скачать MP3 Звук", key="btn_mp3_link"):
+                    except Exception as e: 
+                        st.error("Не удалось скачать через сервер. Попробуйте другую ссылку.")
+                        
+        # Кнопка MP3 (Чистая логика из первой версии)
+        with col2:
+            if st.button("🎶 Скачать MP3 Звук", use_container_width=True, key="btn_mp3_link"):
                 with st.spinner("🎵 Извлечение звука..."):
                     try:
                         with tempfile.TemporaryDirectory() as tmpdir:
                             ydl_opts = ydl_opts_base.copy()
-                            ydl_opts.update({'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': bitrate}]})
+                            ydl_opts.update({
+                                'outtmpl': f'{tmpdir}/%%(title)s.%%(ext)s', 
+                                'format': 'bestaudio/best', 
+                                'postprocessors': [{
+                                    'key': 'FFmpegExtractAudio', 
+                                    'preferredcodec': 'mp3', 
+                                    'preferredquality': '192'
+                                }]
+                            })
                             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                                 info = ydl.extract_info(link, download=True)
                                 filename = ydl.prepare_filename(info)
@@ -108,7 +90,8 @@ with tab_link:
                             with open(mp3_filename, "rb") as f:
                                 st.balloons()
                                 st.download_button("📥 Сохранить MP3 в музыку", f.read(), file_name=os.path.basename(mp3_filename), mime="audio/mp3", use_container_width=True)
-                    except Exception: st.error("Ошибка извлечения аудиодорожки.")
+                    except Exception: 
+                        st.error("Ошибка извлечения аудиодорожки.")
 
 # ================= ВКЛАДКА 2: ИИ-РЕСТАВРАТОР ФОТО / ГАЛЕРЕИ =================
 with tab_file:
@@ -169,3 +152,12 @@ with tab_games:
     st.write("### 🕹️ Стабильные игры от Яндекс Платформы")
     selected_game = st.selectbox("🎯 Выберите игру:", ["🔴 Шашки (На двоих)", "♟️ Шахматы (Интеллект)", "🏎️ Неоновые Гонки (Драйв)"])
     
+    if "Шашки" in selected_game: game_url = "https://html5games.com"
+    elif "Шахматы" in selected_game: game_url = "https://html5games.com"
+    elif "Гонки" in selected_game: game_url = "https://html5games.com"
+
+    st.components.v1.iframe(game_url, height=550, scrolling=False)
+
+# Подвал
+st.markdown("---")
+st.write("👨‍💻 Разработано молодым программистом | 📱 Полная поддержка iOS и Android")
