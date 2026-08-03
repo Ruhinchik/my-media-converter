@@ -5,22 +5,16 @@ import tempfile
 
 # Настройка страницы
 st.set_page_config(
-    page_title="Media Mega Комбайн v4.0", 
+    page_title="Media Mega Комбайн v4.1", 
     page_icon="🚀", 
     layout="centered"
 )
-
-# === ТВОЙ КОСМИЧЕСКИЙ ФОН ===
-IMAGE_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvqWJmFSWGztUB0uIlYNxqyJ1PgSKoQi84AEu_KsMF_A&s=10"
-
-# Безопасная установка фона
-st.markdown(f'<style>.stApp {{background-image: url("{IMAGE_URL}"); background-size: cover; background-position: center; background-attachment: fixed;}} h1, p, label, subheader, h3 {{text-shadow: 2px 2px 8px black !important; color: white !important;}} .stInfo, .stSuccess, .stWarning, .stError {{text-shadow: none !important;}}</style>', unsafe_allowed_html=True)
 
 # Твой баннер со звуковой волной вверху
 banner_url = "https://squarespace-cdn.com"
 st.image(banner_url, use_container_width=True)
 
-st.title("🚀 Media Mega Комбайн v4.0")
+st.title("🚀 Media Mega Комбайн v4.1")
 st.write("Скачивайте видео, музыку и фото из Pinterest, YouTube, TikTok, VK и Instagram!")
 
 # Поле ввода ссылки
@@ -29,7 +23,7 @@ link = st.text_input("🔗 Вставьте вашу ссылку сюда:", pl
 if link:
     st.markdown("---")
     
-    # ================= 5. УМНЫЙ ОПРЕДЕЛИТЕЛЬ ССЫЛОК С ПИНТЕРЕСТОМ =================
+    # ================= УМНЫЙ ОПРЕДЕЛИТЕЛЬ ССЫЛОК С ПИНТЕРЕСТОМ =================
     link_lower = link.lower()
     if "pinterest.com" in link_lower or "pin.it" in link_lower:
         st.info("📌 **Обнаружена ссылка из Pinterest!** Извлекаю фото или видео.")
@@ -62,7 +56,6 @@ if link:
                 video_title = info.get('title', 'Медиа файл')
                 thumbnail_url = info.get('thumbnail', None)
                 
-                # Проверяем, видео это или просто картинка (для Пинтереста)
                 direct_video_url = None
                 if 'formats' in info:
                     for f in info['formats']:
@@ -102,7 +95,7 @@ if link:
 
     col1, col2 = st.columns(2)
 
-    # Кнопка MP4 (или скачивание видео из Пинтерест)
+    # Кнопка MP4
     with col1:
         if st.button("🎥 Скачать MP4 Видео", use_container_width=True):
             with st.spinner("🚀 Скачивание..."):
