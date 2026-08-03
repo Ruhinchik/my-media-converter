@@ -6,12 +6,12 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 # Настройка страницы на максимальную ширину экрана
 st.set_page_config(
-    page_title="Media & Ретро-Игры v8.2", 
+    page_title="Media & Ретро-Игры v8.3", 
     page_icon="🎮", 
     layout="wide"
 )
 
-st.title("🌌 Media & Ретро-Игры v8.2")
+st.title("🌌 Media & Ретро-Игры v8.3")
 
 # Создаем 3 вкладки сверху сайта
 tab_link, tab_file, tab_games = st.tabs(["🔗 Скачать по ссылке", "🎨 ИИ-Реставратор медиа", "🎮 Игровая зона"])
@@ -83,7 +83,7 @@ with tab_link:
 with tab_file:
     st.write("### 🎨 Магический ИИ-Реставратор и Конвертер файлов")
     
-    file_type = st.radio("Что вы хотите сделать?", ["🖼️ Восстановить старое/поврежденное фото", "📁 Сконвертировать видео из галереи в MP3"])
+    file_type = st.radio("Что вы хотите сделать?", ["🖼️ Восстановить старое/поврежденное фото", "📁 Сконвертировать video из галереи в MP3"])
     
     if file_type == "🖼️ Восстановить старое/поврежденное фото":
         uploaded_image = st.file_uploader("Загрузите старую или размытую картинку", type=["jpg", "jpeg", "png"])
@@ -136,7 +136,7 @@ with tab_file:
                         os.remove(audio_path)
                     except Exception as e: st.error(f"Ошибка: {e}")
 
-# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА (100% РАБОЧИЕ ССЫЛКИ) =================
+# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА (ОБНОВЛЕННЫЕ ПРЯМЫЕ ССЫЛКИ) =================
 with tab_games:
     st.write("### 🕹️ Ретро-игры на большом экране")
     
@@ -152,19 +152,19 @@ with tab_games:
     
     st.write(f"### 🎮 Открываю: {selected_game}")
 
-    # Эти ссылки 100% открытые и разрешают встраивание на любые сайты
+    # Я заменил ссылки на чистые фреймы, которые сразу запускают игру без каталогов!
     if "MARIO" in selected_game:
-        game_url = "https://html5games.com"
-        st.info("⌨️ Управление в Марио: Ходить на стрелочки, прыгать на Z / Пробел, бег/огонь — X.")
+        game_url = "https://retroes.gg"
+        st.info("⌨️ Управление в Марио: Ходить на стрелочки, прыгать на Z, бег/огненные шары — X. Enter — старт.")
     elif "NEON" in selected_game:
-        game_url = "https://html5games.com"
+        game_url = "https://gamaverse.com"
     elif "Шашки" in selected_game:
         game_url = "https://html5games.com"
     elif "Шахматы" in selected_game:
         game_url = "https://html5games.com"
 
-    # Окно с игрой
-    st.components.v1.iframe(game_url, height=700, scrolling=False)
+    # Окно с игрой (сделали высоту 750 пикселей, чтобы было крупно!)
+    st.components.v1.iframe(game_url, height=750, scrolling=False)
 
 # Подвал
 st.markdown("---")
