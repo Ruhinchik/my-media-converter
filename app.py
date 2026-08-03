@@ -5,43 +5,15 @@ import tempfile
 from PIL import Image, ImageEnhance, ImageFilter
 
 # ================= 💰 НАСТРОЙКИ ПРЕМИУМА =================
-# Твой секретный пароль для открытия Премиум-функций
 SECRET_KEY = "Ruhinchik_PRO_2026"
-
-# Ссылка на донаты (DonationAlerts или Boosty)
 DONATE_URL = "https://donationalerts.com"
 # =========================================================
 
-# Настройка страницы (layout="centered" идеально подходит для мобилок)
-st.set_page_config(
-    page_title="Media, Games & Mobile Premium", 
-    page_icon="👑", 
-    layout="centered" 
-)
+st.set_page_config(page_title="Media, Games & Mobile Premium", page_icon="👑", layout="centered")
 
-# Адаптивный дизайн для телефонов (крупные кнопки и скрытие логов)
-st.markdown("""
-    <style>
-    .stButton>button {
-        width: 100% !important;
-        height: 55px !important;
-        font-size: 16px !important;
-        border-radius: 12px !important;
-    }
-    .stSelectbox div[data-baseweb="select"] {
-        height: 45px !important;
-    }
-    @media (max-width: 640px) {
-        h1 { font-size: 24px !important; }
-        .stTabs [data-baseweb="tab"] { font-size: 14px !important; padding: 10px 5px !important; }
-    }
-    </style>
-""", unsafe_allowed_html=True)
-
-st.title("🌌 Космо-Комбайн v10.0 Mobile")
+st.title("🌌 Космо-Комбайн v10.1 Mobile")
 st.write("Скачивайте медиа, улучшайте фото и играйте прямо с телефона!")
 
-# Вкладки, адаптированные под мобильный экран
 tab_link, tab_file, tab_games = st.tabs(["🔗 Ссылка", "🎨 ИИ-Реставратор", "🎮 Игры 2D"])
 
 # ================= ВКЛАДКА 1: СКАЧИВАНИЕ ПО ССЫЛКЕ =================
@@ -54,17 +26,15 @@ with tab_link:
         ydl_opts_base = {
             'noplaylist': True, 'quiet': True, 'no_check_certificate': True,
             'extractor_args': {'youtube': ['player_client=android,web;player_skip=webpage_download']},
-            'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
-            }
+            'http_headers': {'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36'}
         }
-        with St.spinner("🔍 Анализирую медиа..."):
+        with st.spinner("🔍 Анализирую медиа..."):
             try:
                 with yt_dlp.YoutubeDL(ydl_opts_base) as ydl:
                     info = ydl.extract_info(link, download=False)
                     video_title = info.get('title', 'Медиа файл')
                     thumbnail_url = info.get('thumbnail', None)
-                    direct_video_url = info.get('url', None)
+                    direct_video_url = None
                     if 'formats' in info:
                         for f in info['formats']:
                             if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('url'):
@@ -77,36 +47,12 @@ with tab_link:
 
         st.markdown("---")
         st.write("#### 📥 Выберите качество:")
-        
-        # Полный список всех качеств видео
-        video_quality = st.selectbox(
-            "🎬 Качество видео (MP4):", 
-            [
-                "144p (Низкое - Бесплатно)", 
-                "360p (Обычное - Бесплатно)", 
-                "480p (Эконом - Бесплатно)", 
-                "720p (HD - Бесплатно)", 
-                "1080p (Full HD - PREMIUM 👑)", 
-                "1440p (2K Ultra - PREMIUM 👑)", 
-                "2160p (4K Max - PREMIUM 👑)"
-            ]
-        )
-        
-        # Полный список всех качеств звука
-        audio_quality = st.selectbox(
-            "🎛️ Качество звука (MP3):", 
-            [
-                "64 kbps (Низкое - Бесплатно)", 
-                "128 kbps (Среднее - Бесплатно)", 
-                "192 kbps (Хорошее - Бесплатно)", 
-                "320 kbps (Премиум - PREMIUM 👑)"
-            ]
-        )
+        video_quality = st.selectbox("🎬 Качество видео (MP4):", ["144p (Бесплатно)", "360p (Бесплатно)", "480p (Бесплатно)", "720p (Бесплатно)", "1080p (PREMIUM 👑)", "1440p (2K - PREMIUM 👑)", "2160p (4K - PREMIUM 👑)"])
+        audio_quality = st.selectbox("🎛️ Качество звука (MP3):", ["64 kbps (Бесплатно)", "128 kbps (Бесплатно)", "192 kbps (Бесплатно)", "320 kbps (PREMIUM 👑)"])
 
-        # Проверяем на Премиум
         is_link_premium = "PREMIUM" in video_quality or "PREMIUM" in audio_quality
-        
         premium_access = True
+        
         if is_link_premium:
             st.warning("⚠️ Вы выбрали PREMIUM качество. Нужен секретный ключ!")
             st.markdown(f"🎁 **[ПОЛУЧИТЬ ПРЕМИУМ КЛЮЧ ЗА ДОНАТ]({DONATE_URL})**")
@@ -120,18 +66,15 @@ with tab_link:
                 st.error("❌ Ключ неверный!")
                 premium_access = False
 
-        # Настройка битрейта под выбор
         bitrate = "192"
         for b in ["64", "128", "192", "320"]:
             if b in audio_quality: bitrate = b
 
-        # Настройка разрешения видео под выбор
         v_limit = "720"
         for res in ["144", "360", "480", "720", "1080", "1440", "2160"]:
             if res in video_quality: v_limit = res
         video_format = f"best[height<={v_limit}][ext=mp4]/best"
 
-        # Кнопки
         if link and premium_access:
             if st.button("🎥 Скачать MP4 Видео", key="btn_mp4_link"):
                 with st.spinner("🚀 Скачивание..."):
@@ -169,13 +112,11 @@ with tab_file:
     
     if file_type == "🖼️ Восстановить фото":
         uploaded_image = st.file_uploader("Загрузите картинку с телефона", type=["jpg", "jpeg", "png"])
-        
         if uploaded_image is not None:
             image = Image.open(uploaded_image)
             st.write("#### Настройки резкости:")
             sharpness_val = st.slider("⚡ Сила резкости:", 1.0, 3.0, 1.5)
             contrast_val = st.slider("🌈 PREMIUM 👑 Контраст (Выше 1.5 нужен Премиум):", 1.0, 3.0, 1.2)
-            
             photo_premium = True
             if contrast_val > 1.5:
                 st.warning("⚠️ Выбран Ультра-контраст Премиум уровня!")
@@ -186,7 +127,6 @@ with tab_file:
                     photo_premium = True
                 else:
                     photo_premium = False
-            
             if photo_premium:
                 st.image(image, caption="Было", use_container_width=True)
                 with st.spinner("🔮 ИИ восстанавливает пиксели..."):
@@ -194,7 +134,6 @@ with tab_file:
                     enhanced_img = ImageEnhance.Sharpness(enhanced_img).enhance(sharpness_val)
                     enhanced_img = ImageEnhance.Contrast(enhanced_img).enhance(contrast_val)
                     st.image(enhanced_img, caption="Стало", use_container_width=True)
-                
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_img_file:
                     enhanced_img.save(tmp_img_file.name)
                     with open(tmp_img_file.name, "rb") as img_f:
@@ -206,3 +145,25 @@ with tab_file:
         if uploaded_file is not None:
             st.success(f"🎬 Видео загружено!")
             if st.button("🎵 Извлечь звук в MP3", key="btn_local_mp3"):
+                with st.spinner("✂️ Извлекаю аудио..."):
+                    try:
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as t_video:
+                            t_video.write(uploaded_file.read())
+                            video_path = t_video.name
+                        audio_path = video_path.replace(".mp4", ".mp3")
+                        os.system(f'ffmpeg -i "{video_path}" -vn -ar 44100 -ac 2 -b:a 192k "{audio_path}" -y')
+                        with open(audio_path, "rb") as f:
+                            st.balloons()
+                            st.download_button("📥 Скачать готовый MP3", f.read(), file_name="audio.mp3", mime="audio/mp3", use_container_width=True)
+                        os.remove(video_path)
+                        os.remove(audio_path)
+                    except Exception as e: st.error(f"Ошибка: {e}")
+
+# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА =================
+with tab_games:
+    st.write("### 🕹️ Ретро-игры для телефона")
+    selected_game = st.selectbox("🎯 Выберите игру:", ["🍄 SUPER MARIO BROS", "🏎️ NEON RACER", "🔴 Шашки 2D", "♟️ Шахматы"])
+    if "MARIO" in selected_game: game_url = "https://retroes.gg"
+    elif "NEON" in selected_game: game_url = "https://gamaverse.com"
+    elif "Шашки" in selected_game: game_url = "https://html5games.com"
+    elif "Шахматы" in selected_game: game_url = "https://html5games.com"
