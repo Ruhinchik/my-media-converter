@@ -5,16 +5,12 @@ import tempfile
 
 # Настройка страницы
 st.set_page_config(
-    page_title="Media & Game Космо-Комбайн v6.0", 
+    page_title="Media & Game Космо-Комбайн v6.1", 
     page_icon="🎮", 
     layout="centered"
 )
 
-# Твой космический фон на весь сайт (Официальная настройка темы)
-space_image_url = "https://gstatic.com"
-st.markdown(f'<style>.stApp {{background-image: url("{space_image_url}"); background-size: cover; background-position: center; background-attachment: fixed;}} h1, p, label, subheader, h3 {{text-shadow: 2px 2px 8px black !important; color: white !important;}}</style>', unsafe_allowed_html=True)
-
-st.title("🌌 Media & Game Космо-Комбайн v6.0")
+st.title("🌌 Media & Game Космо-Комбайн v6.1")
 
 # Создаем 3 вкладки сверху сайта (Медиа + Игры!)
 tab_link, tab_file, tab_games = st.tabs(["🔗 Скачать по ссылке", "📂 Конвертер файлов", "🎮 Игровая зона"])
@@ -52,7 +48,7 @@ with tab_link:
                     info = ydl.extract_info(link, download=False)
                     video_title = info.get('title', 'Медиа файл')
                     thumbnail_url = info.get('thumbnail', None)
-                    direct_video_url = info.get('url', None)
+                    direct_video_url = None
                     if 'formats' in info:
                         for f in info['formats']:
                             if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('url'):
@@ -111,19 +107,18 @@ with tab_file:
         if st.button("🎵 Превратить в MP3", use_container_width=True):
             with st.spinner("✂️ Извлекаю аудио..."):
                 try:
-                    # Чистая и легкая конвертация через системный FFmpeg без moviepy!
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as t_video:
                         t_video.write(uploaded_file.read())
                         video_path = t_video.name
                     
                     audio_path = video_path.replace(".mp4", ".mp3")
                     
-                    # Запускаем системную команду конвертации (это работает со 100% гарантией без ошибок!)
+                    # Легкая и надежная конвертация через встроенный FFmpeg
                     os.system(f'ffmpeg -i "{video_path}" -vn -ar 44100 -ac 2 -b:a 192k "{audio_path}" -y')
                     
                     with open(audio_path, "rb") as f:
                         st.balloons()
-                        st.download_button("📥 Скачать готовый MP3 аудиофайл", f.read(), file_name=os.path.splitext(uploaded_file.name)[0] + ".mp3", mime="audio/mp3", use_container_width=True)
+                        st.download_button("📥 Скачать готовый MP3 аудиофайл", f.read(), file_name=os.path.splitext(uploaded_file.name) + ".mp3", mime="audio/mp3", use_container_width=True)
                     
                     os.remove(video_path)
                     os.remove(audio_path)
@@ -137,10 +132,8 @@ with tab_games:
 
     if game_choice == "🔴 2D Шашки":
         st.write("### Игровое поле: Шашки (Ходите по очереди с другом)")
-        # Встраиваем полноценную крутую HTML5-игру в Шашки через фрейм
         st.components.v1.iframe("https://html5games.com", height=500, scrolling=False)
         
     elif game_choice == "♟️ Шахматы":
         st.write("### Игровое поле: Шахматы (Битва умов)")
-        # Встраиваем полноценную HTML5-игру в Шахматы через фрейм
         st.components.v1.iframe("https://html5games.com", height=500, scrolling=False)
