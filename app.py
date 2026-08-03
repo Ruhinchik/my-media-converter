@@ -4,9 +4,14 @@ import os
 import tempfile
 
 # Настройка страницы
-st.set_page_config(page_title="Media Mega Комбайн v3.1", page_icon="🚀", layout="centered")
+st.set_page_config(page_title="Media Mega Комбайн v3.3", page_icon="🚀", layout="centered")
 
-st.title("🚀 Media Mega Комбайн v3.1")
+# ================= ТВОЯ КРАСИВАЯ КАРТИНКА ЗВУКОВОЙ ВОЛНЫ =================
+# Прямая ссылка на выбранное тобой изображение
+banner_url = "https://squarespace-cdn.com"
+st.image(banner_url, use_container_width=True)
+
+st.title("🚀 Media Mega Комбайн v3.3")
 st.write("Скачивайте, слушайте и смотрите медиа со всех соцсетей в один клик!")
 
 # Поле ввода ссылки
@@ -28,8 +33,7 @@ if link:
     else:
         st.subheader("🔗 **Обнаружена ссылка!** Пытаюсь распознать сайт...")
 
-    # Получаем информацию о видео с защитой от блокировок (User-Agent)
-    # Это решает проблему с ошибкой HTTP Error 403: Forbidden
+    # Получаем информацию о видео с защитой от блокировок
     ydl_opts_info = {
         'noplaylist': True,
         'http_headers': {
@@ -50,8 +54,7 @@ if link:
 
             # ================= 3. СКАЧИВАНИЕ ОБЛОЖЕК И ФОТО (ПРЕВЬЮ) =================
             if thumbnail_url:
-                st.image(thumbnail_url, caption="📸 Обложка (Превью) вашего видео", use_container_width=True)
-                # Безопасная кнопка-ссылка без использования опасного HTML кода
+                st.image(thumbnail_url, caption="📸 Обложка вашего видео", use_container_width=True)
                 st.link_button("🖼️ Открыть и скачать обложку в HD", thumbnail_url, use_container_width=True)
 
             # ================= 1. ВСТРОЕННЫЙ МЕДИАПЛЕЕР =================
@@ -84,7 +87,7 @@ if link:
 
     col1, col2 = st.columns(2)
 
-    # Кнопка MP4 с защитой User-Agent
+    # Кнопка MP4
     with col1:
         if st.button("🎥 Скачать MP4 Видео", use_container_width=True):
             with st.spinner("🚀 Загрузка видео на сервер..."):
@@ -112,7 +115,7 @@ if link:
                 except Exception as e:
                     st.error(f"Ошибка при скачивании видео: {e}")
 
-    # Кнопка MP3 с защитой User-Agent
+    # Кнопка MP3
     with col2:
         if st.button("🎶 Скачать MP3 Звук", use_container_width=True):
             with st.spinner("🎵 Извлечение аудио..."):
