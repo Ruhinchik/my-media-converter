@@ -6,15 +6,15 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 # ================= 💰 НАСТРОЙКИ ПРЕМИУМА =================
 SECRET_KEY = "Ruhinchik_PRO_2026"
-DONATE_URL = "https://donationalerts.com"
+DONATE_URL = "https://donationalerts.com" # СЮДА ВСТАВЬ СВОЙ ДОНАТ!
 # =========================================================
 
 st.set_page_config(page_title="Media, Games & Mobile Premium", page_icon="👑", layout="centered")
 
-st.title("🌌 Космо-Комбайн v10.1 Mobile")
+st.title("🌌 Космо-Комбайн v10.2 Mobile")
 st.write("Скачивайте медиа, улучшайте фото и играйте прямо с телефона!")
 
-tab_link, tab_file, tab_games = st.tabs(["🔗 Ссылка", "🎨 ИИ-Реставратор", "🎮 Игры 2D"])
+tab_link, tab_file, tab_games = st.tabs(["🔗 Ссылка", "🎨 ИИ-Реставратор", "🎮 Яндекс Игры"])
 
 # ================= ВКЛАДКА 1: СКАЧИВАНИЕ ПО ССЫЛКЕ =================
 with tab_link:
@@ -159,11 +159,12 @@ with tab_file:
                         os.remove(audio_path)
                     except Exception as e: st.error(f"Ошибка: {e}")
 
-# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА =================
+# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА (ЯНДЕКС ИГРЫ) =================
 with tab_games:
-    st.write("### 🕹️ Ретро-игры для телефона")
-    selected_game = st.selectbox("🎯 Выберите игру:", ["🍄 SUPER MARIO BROS", "🏎️ NEON RACER", "🔴 Шашки 2D", "♟️ Шахматы"])
-    if "MARIO" in selected_game: game_url = "https://retroes.gg"
-    elif "NEON" in selected_game: game_url = "https://gamaverse.com"
-    elif "Шашки" in selected_game: game_url = "https://html5games.com"
+    st.write("### 🕹️ Стабильные игры от Яндекс Платформы")
+    selected_game = st.selectbox("🎯 Выберите игру:", ["🔴 Шашки (На двоих)", "♟️ Шахматы (Интеллект)", "🏎️ Неоновые Гонки (Драйв)"])
+    
+    if "Шашки" in selected_game: game_url = "https://html5games.com"
     elif "Шахматы" in selected_game: game_url = "https://html5games.com"
+    elif "Гонки" in selected_game: game_url = "https://html5games.com"
+
