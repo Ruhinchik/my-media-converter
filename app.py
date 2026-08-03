@@ -58,7 +58,7 @@ with tab_link:
                 'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
             }
         }
-        with st.spinner("🔍 Анализирую медиа..."):
+        with St.spinner("🔍 Анализирую медиа..."):
             try:
                 with yt_dlp.YoutubeDL(ydl_opts_base) as ydl:
                     info = ydl.extract_info(link, download=False)
@@ -131,7 +131,7 @@ with tab_link:
             if res in video_quality: v_limit = res
         video_format = f"best[height<={v_limit}][ext=mp4]/best"
 
-        # Кнопки крупные, на мобилках будут друг под другом
+        # Кнопки
         if link and premium_access:
             if st.button("🎥 Скачать MP4 Видео", key="btn_mp4_link"):
                 with st.spinner("🚀 Скачивание..."):
@@ -143,7 +143,7 @@ with tab_link:
                                 info = ydl.extract_info(link, download=True)
                                 filename = ydl.prepare_filename(info)
                             with open(filename, "rb") as f:
-                                st.download_button("📥 Сохранить MP4 в Галерею", f.read(), file_name=os.path.basename(filename), mime="video/mp4")
+                                st.download_button("📥 Сохранить MP4 в Галерею", f.read(), file_name=os.path.basename(filename), mime="video/mp4", use_container_width=True)
                     except Exception: st.error("Ошибка скачивания.")
             
             if st.button("🎶 Скачать MP3 Звук", key="btn_mp3_link"):
@@ -159,7 +159,7 @@ with tab_link:
                                 mp3_filename = base + ".mp3"
                             with open(mp3_filename, "rb") as f:
                                 st.balloons()
-                                st.download_button("📥 Сохранить MP3 в музыку", f.read(), file_name=os.path.basename(mp3_filename), mime="audio/mp3")
+                                st.download_button("📥 Сохранить MP3 в музыку", f.read(), file_name=os.path.basename(mp3_filename), mime="audio/mp3", use_container_width=True)
                     except Exception: st.error("Ошибка аудио.")
 
 # ================= ВКЛАДКА 2: ИИ-РЕСТАВРАТОР ФОТО / ГАЛЕРЕИ =================
@@ -198,12 +198,11 @@ with tab_file:
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_img_file:
                     enhanced_img.save(tmp_img_file.name)
                     with open(tmp_img_file.name, "rb") as img_f:
-                        st.download_button("📥 Скачать готовое фото", img_f.read(), file_name="ai_restored_.png", mime="image/png")
+                        st.download_button("📥 Скачать готовое фото", img_f.read(), file_name="ai_restored_.png", mime="image/png", use_container_width=True)
                     os.remove(tmp_img_file.name)
 
     elif file_type == "📁 Видео из галереи в MP3":
         uploaded_file = st.file_uploader("Выберите видео с телефона", type=["mp4", "mov", "avi"])
         if uploaded_file is not None:
-            if st.button("🎵 Извлечь звук в MP3"):
-                with st.spinner("✂️ Извлекаю аудио..."):
-                    try:
+            st.success(f"🎬 Видео загружено!")
+            if st.button("🎵 Извлечь звук в MP3", key="btn_local_mp3"):
