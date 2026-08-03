@@ -6,16 +6,12 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 # Настройка страницы на максимальную ширину экрана
 st.set_page_config(
-    page_title="Media, GTA & ИИ-Реставратор v8.0", 
+    page_title="Media, GTA & ИИ-Реставратор v8.1", 
     page_icon="🎮", 
     layout="wide"
 )
 
-# Твой космический фон
-space_image_url = "https://gstatic.com"
-st.markdown(f'<style>.stApp {{background-image: url("{space_image_url}"); background-size: cover; background-position: center; background-attachment: fixed;}} h1, p, label, subheader, h3 {{text-shadow: 2px 2px 8px black !important; color: white !important;}}</style>', unsafe_allowed_html=True)
-
-st.title("🌌 Media, GTA & ИИ-Реставратор v8.0")
+st.title("🌌 Media, GTA & ИИ-Реставратор v8.1")
 
 # Создаем 3 вкладки сверху сайта
 tab_link, tab_file, tab_games = st.tabs(["🔗 Скачать по ссылке", "🎨 ИИ-Реставратор медиа", "🎮 Игровая зона (GTA!)"])
@@ -105,15 +101,15 @@ with tab_file:
                 
             with col_img2:
                 with st.spinner("🔮 ИИ восстанавливает пиксели..."):
-                    # Применяем ИИ фильтры реставрации
+                    # Применяем фильтры реставрации
                     enhanced_img = image.filter(ImageFilter.DETAIL)
                     enhanced_img = enhanced_img.filter(ImageFilter.SHARPEN)
                     
-                    # Подкручиваем ползунки резкости
+                    # Подкручиваем резкость
                     sharpener = ImageEnhance.Sharpness(enhanced_img)
                     enhanced_img = sharpener.enhance(sharpness_val)
                     
-                    # Подкручиваем цвета и контраст
+                    # Подкручиваем контраст
                     contraster = ImageEnhance.Contrast(enhanced_img)
                     enhanced_img = contraster.enhance(contrast_val)
                     
@@ -139,7 +135,7 @@ with tab_file:
                         os.system(f'ffmpeg -i "{video_path}" -vn -ar 44100 -ac 2 -b:a 192k "{audio_path}" -y')
                         with open(audio_path, "rb") as f:
                             st.balloons()
-                            st.download_button("📥 Скачать готовый MP3", f.read(), file_name=os.path.splitext(uploaded_file.name)[0] + ".mp3", mime="audio/mp3", use_container_width=True)
+                            st.download_button("📥 Скачать готовый MP3", f.read(), file_name=os.path.splitext(uploaded_file.name) + ".mp3", mime="audio/mp3", use_container_width=True)
                         os.remove(video_path)
                         os.remove(audio_path)
                     except Exception as e: st.error(f"Ошибка: {e}")
@@ -159,15 +155,16 @@ with tab_games:
     
     st.write(f"### 🎮 Играем в: {selected_game}")
 
-    # Ссылки на игры встраиваемые через фреймы
     if "VICE CITY" in selected_game:
-        # Официальный проверенный эмулятор-порт GTA VC HTML5
-        game_url = "https://quenq.com/apps/vice-city/"
+        game_url = "https://quenq.com"
         st.warning("⌨️ Управление в GTA: Ходите на стрелочки или WASD, мышка крутит камеру, Пробел - прыжок / ручник.")
     elif "Шашки" in selected_game:
         game_url = "https://html5games.com"
     elif "Шахматы" in selected_game:
         game_url = "https://html5games.com"
 
-    # Делаем мега-огромный экран (800 пикселей по высоте) на всю ширину сайта под GTA!
     st.components.v1.iframe(game_url, height=800, scrolling=True)
+
+# Подвал
+st.markdown("---")
+st.write("👨‍💻 Разработано молодым программистом")
