@@ -6,36 +6,6 @@ import tempfile
 # Настройка страницы
 st.set_page_config(page_title="Media Mega Downloader", page_icon="⚡", layout="centered")
 
-# Исправленный блок дизайна без ошибок
-css_code = """
-<style>
-.stApp {
-    background: linear-gradient(135deg, #0f0c20 0%, #15102a 50%, #06040a 100%) !important;
-}
-h1 { 
-    color: #a04ef6 !important; 
-    font-family: 'Helvetica Neue', sans-serif; 
-    text-align: center;
-    text-shadow: 0 0 10px rgba(160, 78, 246, 0.5);
-}
-p { text-align: center !important; color: #d1c4e9 !important; }
-.stButton>button {
-    background: linear-gradient(45deg, #a04ef6, #673ab7) !important;
-    color: white !important;
-    border-radius: 12px !important;
-    border: none !important;
-    padding: 12px 24px !important;
-    font-weight: bold !important;
-    transition: 0.3s !important;
-}
-.stButton>button:hover {
-    transform: scale(1.02) !important;
-    box-shadow: 0 0 20px #a04ef6 !important;
-}
-</style>
-"""
-st.markdown(css_code, unsafe_allowed_html=True)
-
 st.title("⚡ Media Premium Downloader")
 st.write("Качайте видео и музыку в любом качестве в один клик!")
 
@@ -134,17 +104,6 @@ if link:
                 except Exception as e:
                     st.error(f"Ошибка при извлечении аудио: {e}")
 
-# Подвал сайта
+# Простой подвал сайта
 st.markdown("---")
-st.markdown("<p style='text-align: center;'>👨‍💻 Разработано молодым программистом</p>", unsafe_allowed_html=True)
-
-footer_button = """
-<div style='text-align: center;'>
-    <a href='#' target='_blank'>
-        <button style='background: linear-gradient(45deg, #ff4b4b, #ff7676); color: white; border: none; border-radius: 10px; padding: 12px 20px; cursor: pointer; font-weight: bold;'>
-            ❤️ Поддержать автора (Донат)
-        </button>
-    </a>
-</div>
-"""
-st.markdown(footer_button, unsafe_allowed_html=True)
+st.write("👨‍💻 Разработано молодым программистом")
