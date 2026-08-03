@@ -6,12 +6,12 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 # ================= 💰 НАСТРОЙКИ ПРЕМИУМА =================
 SECRET_KEY = "Ruhinchik_PRO_2026"
-DONATE_URL = "https://www.donationalerts.com/r/ruhin_hesenov" # СЮДА ВСТАВЬ СВОЙ ДОНАТ!
+DONATE_URL = "https://donationalerts.com" 
 # =========================================================
 
 st.set_page_config(page_title="Media, Games & Mobile Premium", page_icon="👑", layout="centered")
 
-st.title("🌌 Космо-Комбайн v10.2 Mobile")
+st.title("🌌 Космо-Комбайн v10.3 Mobile")
 st.write("Скачивайте медиа, улучшайте фото и играйте прямо с телефона!")
 
 tab_link, tab_file, tab_games = st.tabs(["🔗 Ссылка", "🎨 ИИ-Реставратор", "🎮 Яндекс Игры"])
@@ -66,14 +66,19 @@ with tab_link:
                 st.error("❌ Ключ неверный!")
                 premium_access = False
 
+        # Исправленные универсальные форматы, которые подходят для Pinterest
         bitrate = "192"
         for b in ["64", "128", "192", "320"]:
             if b in audio_quality: bitrate = b
 
-        v_limit = "720"
-        for res in ["144", "360", "480", "720", "1080", "1440", "2160"]:
-            if res in video_quality: v_limit = res
-        video_format = f"best[height<={v_limit}][ext=mp4]/best"
+        if is_link_premium:
+            v_limit = "1080"
+            if "1440p" in video_quality: v_limit = "1440"
+            if "2160p" in video_quality: v_limit = "2160"
+            video_format = f"bestvideo[height<={v_limit}]+bestaudio/best"
+        else:
+            # Для бесплатного режима берем просто лучшее готовое mp4 видео, чтобы Pinterest не выдавал ошибку формата
+            video_format = "best[ext=mp4]/best"
 
         if link and premium_access:
             if st.button("🎥 Скачать MP4 Видео", key="btn_mp4_link"):
@@ -86,8 +91,8 @@ with tab_link:
                                 info = ydl.extract_info(link, download=True)
                                 filename = ydl.prepare_filename(info)
                             with open(filename, "rb") as f:
-                                st.download_button("📥 Сохранить MP4 в Галерею", f.read(), file_name=os.path.basename(filename), mime="video/mp4", use_container_width=True)
-                    except Exception: st.error("Ошибка скачивания.")
+                                st.download_button("📥 Сохранить MP4 на устройство", f.read(), file_name=os.path.basename(filename), mime="video/mp4", use_container_width=True)
+                    except Exception as e: st.error(f"Ошибка скачивания. Попробуйте еще раз.")
             
             if st.button("🎶 Скачать MP3 Звук", key="btn_mp3_link"):
                 with st.spinner("🎵 Извлечение звука..."):
@@ -103,7 +108,7 @@ with tab_link:
                             with open(mp3_filename, "rb") as f:
                                 st.balloons()
                                 st.download_button("📥 Сохранить MP3 в музыку", f.read(), file_name=os.path.basename(mp3_filename), mime="audio/mp3", use_container_width=True)
-                    except Exception: st.error("Ошибка аудио.")
+                    except Exception: st.error("Ошибка извлечения аудиодорожки.")
 
 # ================= ВКЛАДКА 2: ИИ-РЕСТАВРАТОР ФОТО / ГАЛЕРЕИ =================
 with tab_file:
@@ -159,12 +164,8 @@ with tab_file:
                         os.remove(audio_path)
                     except Exception as e: st.error(f"Ошибка: {e}")
 
-# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА (ЯНДЕКС ИГРЫ) =================
+# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА =================
 with tab_games:
     st.write("### 🕹️ Стабильные игры от Яндекс Платформы")
     selected_game = st.selectbox("🎯 Выберите игру:", ["🔴 Шашки (На двоих)", "♟️ Шахматы (Интеллект)", "🏎️ Неоновые Гонки (Драйв)"])
     
-    if "Шашки" in selected_game: game_url = "https://html5games.com"
-    elif "Шахматы" in selected_game: game_url = "https://html5games.com"
-    elif "Гонки" in selected_game: game_url = "https://html5games.com"
-
