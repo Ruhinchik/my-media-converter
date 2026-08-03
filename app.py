@@ -6,40 +6,35 @@ import tempfile
 # Настройка страницы
 st.set_page_config(page_title="Media Mega Downloader", page_icon="⚡", layout="centered")
 
-# ================= НАСТРОЙКА ДИЗАЙНА И ФОНА С ТВОИМ CSS =================
-# Здесь мы меняем фон всего сайта. Сейчас стоит красивый темный градиент.
-# Если хочешь вместо него картинку, замени строку с background на:
-# background-image: url('ССЫЛКА_НА_ТВОЮ_КАРТИНКУ_ИЗ_ИНТЕРНЕТА'); background-size: cover;
-st.markdown("""
-    <style>
-    .stApp {
-        background: linear-gradient(135deg, #0f0c20 0%, #15102a 50%, #06040a 100%);
-    }
-    h1 { 
-        color: #a04ef6; 
-        font-family: 'Helvetica Neue', sans-serif; 
-        text-align: center;
-        text-shadow: 0 0 10px rgba(160, 78, 246, 0.5);
-    }
-    p { text-align: center; color: #d1c4e9; }
-    
-    /* Красивый стиль для кнопок */
-    .stButton>button {
-        background: linear-gradient(45deg, #a04ef6, #673ab7);
-        color: white;
-        border-radius: 12px;
-        border: none;
-        padding: 12px 24px;
-        font-weight: bold;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 20px #a04ef6;
-        color: white;
-    }
-    </style>
-""", unsafe_allowed_html=True)
+# Исправленный блок дизайна без ошибок
+css_code = """
+<style>
+.stApp {
+    background: linear-gradient(135deg, #0f0c20 0%, #15102a 50%, #06040a 100%) !important;
+}
+h1 { 
+    color: #a04ef6 !important; 
+    font-family: 'Helvetica Neue', sans-serif; 
+    text-align: center;
+    text-shadow: 0 0 10px rgba(160, 78, 246, 0.5);
+}
+p { text-align: center !important; color: #d1c4e9 !important; }
+.stButton>button {
+    background: linear-gradient(45deg, #a04ef6, #673ab7) !important;
+    color: white !important;
+    border-radius: 12px !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    font-weight: bold !important;
+    transition: 0.3s !important;
+}
+.stButton>button:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 0 20px #a04ef6 !important;
+}
+</style>
+"""
+st.markdown(css_code, unsafe_allowed_html=True)
 
 st.title("⚡ Media Premium Downloader")
 st.write("Качайте видео и музыку в любом качестве в один клик!")
@@ -47,7 +42,7 @@ st.write("Качайте видео и музыку в любом качеств
 # Поле ввода ссылки
 link = st.text_input("🔗 Вставьте вашу ссылку сюда:", placeholder="https://...")
 
-# Создаем настройки качества в два столбца (Новые фичи!)
+# Создаем настройки качества в два столбца
 setting_col1, setting_col2 = st.columns(2)
 
 with setting_col1:
@@ -85,7 +80,7 @@ if link:
                     with tempfile.TemporaryDirectory() as tmpdir:
                         ydl_opts = {
                             'outtmpl': f'{tmpdir}/%(title)s.%(ext)s',
-                            'format': video_format, # Используем выбранное качество!
+                            'format': video_format,
                             'noplaylist': True,
                         }
                         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -143,12 +138,13 @@ if link:
 st.markdown("---")
 st.markdown("<p style='text-align: center;'>👨‍💻 Разработано молодым программистом</p>", unsafe_allowed_html=True)
 
-st.markdown("""
-    <div style='text-align: center;'>
-        <a href='#' target='_blank'>
-            <button style='background: linear-gradient(45deg, #ff4b4b, #ff7676); color: white; border: none; border-radius: 10px; padding: 12px 20px; cursor: pointer; font-weight: bold;'>
-                ❤️ Поддержать автора (Донат)
-            </button>
-        </a>
-    </div>
-""", unsafe_allowed_html=True)
+footer_button = """
+<div style='text-align: center;'>
+    <a href='#' target='_blank'>
+        <button style='background: linear-gradient(45deg, #ff4b4b, #ff7676); color: white; border: none; border-radius: 10px; padding: 12px 20px; cursor: pointer; font-weight: bold;'>
+            ❤️ Поддержать автора (Донат)
+        </button>
+    </a>
+</div>
+"""
+st.markdown(footer_button, unsafe_allowed_html=True)
