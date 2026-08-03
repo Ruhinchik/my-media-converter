@@ -3,28 +3,28 @@ import yt_dlp
 import os
 import tempfile
 
-# Настройка страницы
+# Настройка страницы (Растягиваем сайт на широкую версию 'wide')
 st.set_page_config(
-    page_title="Media & Game Космо-Комбайн v6.1", 
-    page_icon="🎮", 
-    layout="centered"
+    page_title="Media & Яндекс Игры v7.0", 
+    page_icon="🕹️", 
+    layout="wide" # 'wide' делает экран приложения большим и широким
 )
 
-st.title("🌌 Media & Game Космо-Комбайн v6.1")
+st.title("🌌 Media & Яндекс Игры Космо-Комбайн v7.0")
 
-# Создаем 3 вкладки сверху сайта (Медиа + Игры!)
-tab_link, tab_file, tab_games = st.tabs(["🔗 Скачать по ссылке", "📂 Конвертер файлов", "🎮 Игровая зона"])
+# Создаем 3 вкладки сверху сайта
+tab_link, tab_file, tab_games = st.tabs(["🔗 Скачать по ссылке", "📂 Конвертер файлов", "🕹️ Яндекс Игры (Большой экран)"])
 
 # ================= ВКЛАДКА 1: СКАЧИВАНИЕ ПО ССЫЛКЕ =================
 with tab_link:
-    st.write("Качайте видео, музыку и фото из Pinterest, YouTube, TikTok, VK и Instagram!")
-    link = st.text_input("Вставьте вашу ссылку сюда:", placeholder="https://...", key="link_input")
+    st.write("### 🔗 Загрузчик из соцсетей")
+    link = st.text_input("Вставьте вашу ссылку сюда (YouTube, Pinterest, TikTok, VK, Instagram):", placeholder="https://...", key="link_input")
 
     if link:
         st.markdown("---")
         link_lower = link.lower()
         if "pinterest.com" in link_lower or "pin.it" in link_lower:
-            st.info("📌 **Обнаружена ссылка из Pinterest!** Извлекаю фото или видео.")
+            st.info("📌 **Обнаружена ссылка из Pinterest!** Извлекаю медиа.")
         elif "instagram.com" in link_lower:
             st.info("📸 **Обнаружена ссылка из Instagram!**")
         elif "youtube.com" in link_lower or "youtu.be" in link_lower:
@@ -57,12 +57,12 @@ with tab_link:
 
                 st.subheader(f"📝 {video_title}")
                 if thumbnail_url:
-                    st.image(thumbnail_url, use_container_width=True)
+                    st.image(thumbnail_url, width=500)
                 if direct_video_url and (direct_video_url != thumbnail_url):
                     st.video(direct_video_url)
 
             except Exception:
-                st.error("Предупреждение: Онлайн-превью защищено, но вы можете скачать файл кнопками ниже!")
+                st.error("Предупреждение: Скачайте файл кнопками ниже!")
 
         st.markdown("---")
         col1, col2 = st.columns(2)
@@ -96,44 +96,57 @@ with tab_link:
                                 st.download_button("📥 Сохранить MP3 файл", f.read(), file_name=os.path.basename(mp3_filename), mime="audio/mp3", use_container_width=True)
                     except Exception: st.error("Ошибка аудио.")
 
-# ================= ВКЛАДКА 2: ЧИСТЫЙ КОНВЕРТЕР ФАЙЛОВ ИЗ ГАЛЕРЕИ =================
+# ================= ВКЛАДКА 2: КОНВЕРТЕР ИЗ ГАЛЕРЕИ =================
 with tab_file:
-    st.write("📁 Загрузите видео со своего устройства, чтобы мгновенно извлечь из него аудиодорожку!")
-    uploaded_file = st.file_uploader("Выберите видеофайл из галереи ноутбука или телефона", type=["mp4", "mov", "avi"])
+    st.write("### 📁 Локальный конвертер")
+    st.write("Загрузите видео со своего устройства, чтобы мгновенно извлечь звук!")
+    uploaded_file = st.file_uploader("Выберите файл из галереи", type=["mp4", "mov", "avi"])
 
     if uploaded_file is not None:
-        st.success(f"🎬 Файл '{uploaded_file.name}' успешно загружен!")
-        
+        st.success(f"🎬 Файл '{uploaded_file.name}' загружен!")
         if st.button("🎵 Превратить в MP3", use_container_width=True):
             with st.spinner("✂️ Извлекаю аудио..."):
                 try:
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as t_video:
                         t_video.write(uploaded_file.read())
                         video_path = t_video.name
-                    
                     audio_path = video_path.replace(".mp4", ".mp3")
                     
-                    # Легкая и надежная конвертация через встроенный FFmpeg
                     os.system(f'ffmpeg -i "{video_path}" -vn -ar 44100 -ac 2 -b:a 192k "{audio_path}" -y')
                     
                     with open(audio_path, "rb") as f:
                         st.balloons()
-                        st.download_button("📥 Скачать готовый MP3 аудиофайл", f.read(), file_name=os.path.splitext(uploaded_file.name) + ".mp3", mime="audio/mp3", use_container_width=True)
-                    
+                        st.download_button("📥 Скачать готовый MP3", f.read(), file_name=os.path.splitext(uploaded_file.name) + ".mp3", mime="audio/mp3", use_container_width=True)
                     os.remove(video_path)
                     os.remove(audio_path)
-                except Exception as e:
-                    st.error(f"Ошибка конвертации: {e}")
+                except Exception as e: st.error(f"Ошибка: {e}")
 
-# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА С ДРУЗЬЯМИ =================
+# ================= ВКЛАДКА 3: ИГРОВАЯ ЗОНА (ЯНДЕКС ИГРЫ) =================
 with tab_games:
-    st.subheader("🎮 Настольные мини-игры для двоих")
-    game_choice = st.radio("Выберите игру, чтобы играть с другом прямо сейчас:", ["🔴 2D Шашки", "♟️ Шахматы"])
+    st.write("### 🕹️ Игровая зона Яндекс Игры")
+    
+    # Боковое или верхнее меню выбора игры
+    selected_game = st.selectbox(
+        "🎯 Выберите игру для битвы с другом:", 
+        [
+            "🔴 Шашки (На двоих)", 
+            "♟️ Шахматы (Классические)", 
+            "🚗 Неоновые Гонки (Драйв)",
+            "🧩 Дурак (Карты онлайн)"
+        ]
+    )
+    
+    st.write(f"### 🎮 Играем в: {selected_game} (Экран увеличен)")
 
-    if game_choice == "🔴 2D Шашки":
-        st.write("### Игровое поле: Шашки (Ходите по очереди с другом)")
-        st.components.v1.iframe("https://html5games.com", height=500, scrolling=False)
-        
-    elif game_choice == "♟️ Шахматы":
-        st.write("### Игровое поле: Шахматы (Битва умов)")
-        st.components.v1.iframe("https://html5games.com", height=500, scrolling=False)
+    # Ссылки на бесплатные фреймы игр из базы Яндекс Игр / HTML5
+    if selected_game == "🔴 Шашки (На двоих)":
+        game_url = "https://html5games.com"
+    elif selected_game == "♟️ Шахматы (Классические)":
+        game_url = "https://html5games.com"
+    elif selected_game == "🚗 Неоновые Гонки (Драйв)":
+        game_url = "https://html5games.com"
+    elif selected_game == "🧩 Дурак (Карты онлайн)":
+        game_url = "https://html5games.com"
+
+    # Встраиваем игру с увеличенной высотой (700 пикселей) и на всю ширину
+    st.components.v1.iframe(game_url, height=700, scrolling=True)
